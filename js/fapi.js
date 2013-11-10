@@ -60,7 +60,7 @@ var fapi = (function(params) {
 		        }
 		    });
 		};
-
+	
 	} else if (platform == 'phonegap') {
 		this.getFileFromLibrary = function(getFileFromLibraryCallback) {
 
@@ -118,6 +118,38 @@ var fapi = (function(params) {
             }
 		};
 	}
+
+	// common methods
+	this.fileToDataURL = function(file, fileToDataURLCallback) {
+		var fReader = new FileReader();
+	    
+	    fReader.onloadend = function(e){
+	        fileToDataURLCallback(e.target.result);
+	    };
+	    
+
+	    fReader.readAsDataURL(file);
+	};
+
+	this.dataURLToBlob = function(params, dataURLToBlobCallback) {
+
+		var dataURL 	= params.dataURL,
+	        type 		= params.contentType || 'image/jpeg',
+	        filename 	= params.fileName,
+	        strDecoded	= atob(dataURL.split(',')[1]),
+	        byteArray	= [],
+	        blob;
+	            
+	    for(var i = 0; i < strDecoded.length; i++) {
+	        byteArray.push(strDecoded.charCodeAt(i));
+	    }
+	    
+	    blob = new Blob([new Uint8Array(byteArray)], {type: type});
+	    blob.name = filename;
+	    
+
+	    dataURLToBlobCallback(blob);
+	};
 
 
 	return this;
