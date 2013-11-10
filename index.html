@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>FAPI demo</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=100%, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="css/style.css" />
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/fapi.js"></script>
+</head>
+<body>
+    <div class="button" id="get-file">Get File</div>
+
+    <script type="text/javascript">
+    	$('#get-file').click(function() {
+    		fapi.getFileFromLibrary(function(file) {
+	    		console.log(file)
+	    	});
+    	})
+    </script>
+
+</body>
+</html>
