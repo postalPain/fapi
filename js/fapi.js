@@ -34,7 +34,7 @@ var fapi = (function(params) {
 				fileKey 	= params.fileKey || "file",
 				fileName 	= params.fileName || file.name,
 				postData	= params.postData || '',
-				headers 	= options.headers || '',
+				headers 	= params.headers || '',
 				formData 	= new FormData();
 
 			for (var key in postData) {
@@ -54,11 +54,41 @@ var fapi = (function(params) {
 		        processData: false
 		    }).complete(function(respond, status) {
 		        if (status == 'success' || status == 'nocontent') {
-		            uploadFileCallback(credentialsData, false)
+		            uploadFileCallback(respond.responseText, false)
 		        } else {
 		            uploadFileCallback({}, status);
 		        }
 		    });
+		};
+
+
+		this.getFileByURL = function(url, getFileByURLCallback) {
+
+			var oReq = new XMLHttpRequest();
+			
+			oReq.open("GET", url, true);
+			oReq.responseType = "arraybuffer";
+
+			oReq.onload = function (oEvent) {
+				
+				var arrayBuffer = oReq.response,
+					byteArray,
+					blob,
+					type = oReq.getResponseHeader('Content-Type'),
+					name = url.substr(url.lastIndexOf('/')+1);
+
+				if (arrayBuffer) {
+					byteArray = new Uint8Array(arrayBuffer);
+					blob = new Blob([new Uint8Array(byteArray)], {type: type});
+					blob.name = name;
+					getFileByURLCallback(blob, false);
+				} else {
+					getFileByURLCallback({}, arrayBuffer);
+				}
+			};
+
+			
+			oReq.send(null);
 		};
 	
 	} else if (platform == 'phonegap') {
@@ -117,6 +147,37 @@ var fapi = (function(params) {
                 uploadFileCallback({}, error);
             }
 		};
+
+
+		this.getFileByURL = function(url, getFileByURLCallback) {
+			var ft = new FileTransfer(),
+	    		uriEncoded = encodeURI(url),
+	    		parsedURI = parseURI(url);
+	    		
+	    	
+	    	// get access to file system
+			window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onFileSystemSuccess, onFileSystemFail);
+			
+			
+			// get root path and return it
+			function onFileSystemSuccess(fileSystem) {
+				downloadFile(fileSystem.root.fullPath + '/temp/temp.png');
+			}
+			function onFileSystemFail(error) {
+				getFileByURLCallback({}, error);
+			}
+
+
+			function downloadFile(filePath) {
+				// download file and return path to file in callback function
+		    	ft.download(uriEncoded, filePath, function(fileEntry) {
+		    		getFileByURLCallback(fileEntry.file(), false);
+			    },
+			    function(error) {
+				    getFileByURLCallback({}, error);
+			    });
+			}
+	    };
 	}
 
 	// common methods

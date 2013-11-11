@@ -13,9 +13,20 @@
 
     <script type="text/javascript">
     	$('#get-file').click(function() {
-    		fapi.getFileFromLibrary(function(file) {
-	    		console.log(file)
-	    	});
+    		fapi.getFileByURL('http://test/cp-bucket/100.png', function(blob) {
+                var file = blob;
+                
+                fapi.uploadFile({
+                    url: 'upload.php',
+                    file: file
+                }, function(respond ,error) {
+                    if (!error) {
+                        console.log(respond);
+                    }
+                });
+
+            });
+
     	})
     </script>
 
