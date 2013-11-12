@@ -10,10 +10,10 @@
 </head>
 <body>
     <div class="button" id="get-file">Get File</div>
-
+    
     <script type="text/javascript">
     	$('#get-file').click(function() {
-    		fapi.getFileByURL('http://test/cp-bucket/100.png', function(blob) {
+    		/*fapi.getFileByURL('http://test/cp-bucket/100.png', function(blob) {
                 var file = blob;
                 
                 fapi.uploadFile({
@@ -25,7 +25,24 @@
                     }
                 });
 
-            });
+            });*/
+
+            fapi.getPhoto(function(data, err) {
+                if (!err) {
+                    
+                    fapi.dataURLToBlob({
+                        dataURL: data,
+                        fileName: 'snapshot' + +new Date() + '.jpg'
+                    }, function(file) {
+                        fapi.uploadFile({
+                            url: 'upload.php',
+                            file: file
+                        }, function() {
+
+                        });
+                    })
+                }
+            })
 
     	})
     </script>

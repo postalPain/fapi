@@ -70,7 +70,7 @@ var fapi = (function(params) {
 			oReq.responseType = "arraybuffer";
 
 			oReq.onload = function (oEvent) {
-				
+
 				var arrayBuffer = oReq.response,
 					byteArray,
 					blob,
@@ -90,7 +90,41 @@ var fapi = (function(params) {
 			
 			oReq.send(null);
 		};
-	
+		
+
+		this.getPhoto = function(getPhotoCallback) {
+			var video = $('<video width="640" height="480" autoplay></video>')[0],
+				canvas = $('<canvas width="640" height="480"></canvas>')[0],
+				canvasContext = canvas.getContext("2d"),
+				videoObj = {
+					video: true
+				};
+			
+			navigator.getMedia = ( navigator.getUserMedia ||
+                   navigator.webkitGetUserMedia ||
+                   navigator.mozGetUserMedia ||
+                   navigator.msGetUserMedia),
+		 	window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
+
+
+			navigator.getMedia(videoObj, function(stream) {
+				if (video.mozSrcObject !== undefined) {
+			        video.mozSrcObject = window.URL.createObjectURL(stream);
+			    } else {
+			        video.src = window.URL.createObjectURL(stream);
+			    };
+
+				video.play();
+
+				window.setTimeout(function() {
+					canvasContext.drawImage(video, 0, 0, 640, 480);
+					var imageDataURL = canvas.toDataURL("image/jpeg");
+					getPhotoCallback(imageDataURL, false);
+				}, 50);
+			}, function(err) {
+				getPhotoCallback({}, err);
+			});
+		};
 	} else if (platform == 'phonegap') {
 		this.getFileFromLibrary = function(getFileFromLibraryCallback) {
 
